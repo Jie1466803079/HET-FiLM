@@ -5,17 +5,12 @@
 #PBS -l walltime=12:00:00
 #PBS -j oe
 #PBS -o logs_pbs_output/
-# === 20260825 ablation — remove --use_tcetf on top of r530_etraj_tcetf_noaux ===
-# Derived from: pbs_r530_hgtp_etraj_tcetf_noauxall_full20_20260617.pbs (job 8315821)
-# Diff vs source:
-#   - --use_tcetf              (REMOVED — no Δγ_text/Δβ_text branch in
-#                                EdgeTrajectoryFiLM; γ_base/β_base only)
-#   - --tcetf_text_dim 128     (REMOVED — dead flag without --use_tcetf)
-#   Effect: EdgeTrajectoryFiLM is instantiated with use_tcetf=False, so
-#   forward() skips the text-conditioning branch (edge_trajectory.py:280-284).
-#   Text still injects into graph['fund'].x via ProspectusTextFusion — this
-#   isolates the TCETF text->edge-FiLM contribution vs row 7.
-#   Seeds reduced to 42..51 (10-seed pilot). New LOG_ROOT to avoid clobber.
+# === HET-FiLM — US panel (Table 5.2) ===
+# Prospectus fusion (--use_prospectus) and edge-trajectory FiLM
+# (--use_edge_trajectory) on the type-indexed attention encoder, whose
+# internal key is --model HGT+. Seeds 42–51 run in parallel batches across
+# the allocated GPUs; each seed writes
+# logs/${PBS_JOBNAME}/seed_<N>/hgt_plus_edge_weight_results.json.
 
 set -eo pipefail
 

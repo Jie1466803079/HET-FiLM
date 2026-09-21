@@ -5,23 +5,13 @@
 #PBS -l walltime=36:00:00
 #PBS -j oe
 #PBS -o logs_pbs_output/
-# === 20260826 Canadian FIXEDPKL pilot10 — TCETF noauxall + grad_clip 1.0 ===
-# Rerun of CA-1 baseline (pbs_canada_fixedpkl_hgtplus_etraj_tcetf_noauxall_pilot10_20260825.pbs)
-# with the ONE mitigation: add --grad_clip 1.0.
-#
-# Motivation: the original CA-1 (job 9109506) had a Stage-2 initialization
-# blowup on seed 49 (val_mae=715 at epoch 0 → test_r2=-1.37 locked in).
-# Seed 49 is fine in every other Canadian variant; the issue is specific to
-# CA-1's stack (text-in-fund.x + TCETF + AMP=0 + large Canadian weight scale)
-# combined with no gradient clipping. Clipping catches the first-batch spike
-# without changing behavior when training is already stable.
-#
-# Diff vs source (CA-1 PBS):
-#   + --grad_clip 1.0          (NEW — bounds per-step gradient L2 norm)
-#   New LOG_ROOT with _gradclip_20260826 suffix; original 20260825 run untouched.
-#
-# All other env/CLI byte-identical to CA-1. In-flight jobs (9109506-9109509)
-# are NOT affected — this uses a fresh LOG_ROOT and its own qsub id.
+# === HET-FiLM — Canadian panel (Table 5.3) ===
+# Prospectus fusion (--use_prospectus) and edge-trajectory FiLM
+# (--use_edge_trajectory) with its text-conditioned branch (--use_tcetf) on
+# the type-indexed attention encoder, whose internal key is --model HGT+;
+# gradient clipping at 1.0. Seeds 42–51 run serially; the reported figures
+# drop the worst-R² seed. Each seed writes
+# logs/${PBS_JOBNAME}/seed_<N>/hgt_plus_edge_weight_results.json.
 
 set -eo pipefail
 

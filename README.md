@@ -69,20 +69,25 @@ hetfilm/
 
 ## Method summary
 
-HET-FiLM is a heterogeneous graph transformer for dynamic fund graphs. Two
-components extend HGT (Hu et al. 2020) to the initiation-weight task:
+HET-FiLM is a dynamic heterogeneous graph model for initiation-weight
+prediction. It has three parts:
 
 1. **Prospectus-aware fund encoding** — a frozen 1024-d text embedding is
    projected to a 128-d strategy code, gated per-dimension against the
    linear projection of the 11-d numerical fund features, and replaces the
    raw fund vector in every snapshot. Cold-start funds receive a zero
    text vector and the gate falls back to the numerical channel.
-2. **Edge-trajectory-conditioned message passing** — every fund–stock edge
+2. **Type-indexed attention encoder** — each quarterly snapshot is encoded
+   by multi-head attention whose query, key and value projections are
+   indexed by the meta-relation of the edge being traversed (the
+   formulation of Hu et al. 2020), and a temporal self-attention layer
+   pools the per-snapshot representations over the support window.
+3. **Edge-trajectory-conditioned message passing** — every fund–stock edge
    in a registry of past holdings is encoded through a causal GRU on the
    three-channel sequence `(w_t, Δw_t, π_t)`. The final hidden state
-   produces per-edge γ and β that feature-wise linearly modulate the
-   HGT message before attention weighting. Modulation heads are
-   zero-initialised so the encoder starts as an unmodulated HGT.
+   produces per-edge γ and β that feature-wise linearly modulate each
+   message before attention weighting. Modulation heads are
+   zero-initialised, so training starts from unmodulated messages.
 
 Two-stage training: Stage 1 fits the encoder by BCE link prediction on
 the same new-edge population; Stage 2 freezes the encoder and fits an MLP
@@ -90,23 +95,25 @@ weight head under Huber loss in `log(1+y)` space.
 
 ## Where HET-FiLM is implemented
 
-HET-FiLM has no single model class: it is the graph transformer encoder in
-`core/models/HGT.py` with the two components above switched on by
-`--use_prospectus` and `--use_edge_trajectory`. `core/models/hetfilm.py` imports every piece in one
-place, and the table shows where each one lives.
+`core/models/hetfilm.py` is the entry point to the model: it imports every
+HET-FiLM module, and the table shows where each one lives.
 
 | Component | Code |
 |---|---|
+| Prospectus text fusion into fund features | `ProspectusTextFusion` in `core/models/prospectus_fusion.py` |
+| Type-indexed attention encoder and temporal pooling | `HGT`, `HGTConv` in `core/models/HGT.py` |
 | Edge-trajectory encoder (causal GRU over each persistent edge's weight history) | `EdgeTrajectoryEncoder` in `core/models/edge_trajectory.py` |
 | Per-edge FiLM heads producing γ and β (plus the text-conditioned branch enabled by `--use_tcetf`) | `EdgeTrajectoryFiLM` in `core/models/edge_trajectory.py` |
 | FiLM applied to the attention values during message passing | `HGTConv.message` in `core/models/HGT.py` |
-| Prospectus text fusion into fund features | `ProspectusTextFusion` in `core/models/prospectus_fusion.py` |
 | Wiring and two-stage training | `MultiTaskEdgePredictor` in `core/models/multitask_edge.py` (`configure_edge_trajectory`, `_apply_prospectus_fusion`) |
-| Attachment at run time | `scripts/run/run_model.py` |
+| Model assembly from the command-line flags | `scripts/run/run_model.py` |
 
-The exact flags for each panel are in `configs/us/us_hetfilm.pbs` and
-`configs/canada/canada_hetfilm.pbs`; the Canadian configuration also passes
-`--use_tcetf` and `--grad_clip 1.0`.
+In the run scripts, `--model HGT+` is the internal key that selects the
+attention encoder, and `--use_prospectus` and `--use_edge_trajectory`
+switch on the fusion and trajectory modules. The exact flags for each
+panel are in `configs/us/us_hetfilm.pbs` and
+`configs/canada/canada_hetfilm.pbs`; the Canadian configuration also
+passes `--use_tcetf` and `--grad_clip 1.0`.
 
 ## Reproducibility notes
 
