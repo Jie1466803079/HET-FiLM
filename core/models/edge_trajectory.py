@@ -1,6 +1,6 @@
 """Edge weight trajectory encoder (GRU over per-persistent-edge weight history).
 
-Used by HGT+ message-passing FiLM to inject [w(t), Δw(t), present_t] dynamics
+Used by the message-passing FiLM in core/models/HGT.py to inject [w(t), Δw(t), present_t] dynamics
 into the value path. See docs/plans/2026-06-12-edge-trajectory-film.md.
 """
 from typing import List, Dict, Optional, Tuple

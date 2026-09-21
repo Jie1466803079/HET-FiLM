@@ -1,8 +1,8 @@
 """HET-FiLM: entry point to the model's components.
 
-HET-FiLM is not a separate network class. It is the HGT+ backbone
-(``--model HGT+``) with two add-on modules, switched on by CLI flags and
-attached by ``scripts/run/run_model.py``:
+HET-FiLM is not a separate network class. It is the graph transformer
+encoder in ``core/models/HGT.py`` with two add-on modules, switched on by
+CLI flags and attached by ``scripts/run/run_model.py``:
 
 1. Prospectus-aware fund encoding (``--use_prospectus``):
    ``ProspectusTextFusion`` gates a 128-d projection of the prospectus

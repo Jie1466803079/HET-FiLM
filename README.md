@@ -90,9 +90,9 @@ weight head under Huber loss in `log(1+y)` space.
 
 ## Where HET-FiLM is implemented
 
-HET-FiLM has no single model class: it is the HGT+ backbone (`--model HGT+`)
-with the two components above switched on by `--use_prospectus` and
-`--use_edge_trajectory`. `core/models/hetfilm.py` imports every piece in one
+HET-FiLM has no single model class: it is the graph transformer encoder in
+`core/models/HGT.py` with the two components above switched on by
+`--use_prospectus` and `--use_edge_trajectory`. `core/models/hetfilm.py` imports every piece in one
 place, and the table shows where each one lives.
 
 | Component | Code |
