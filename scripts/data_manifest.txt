@@ -7,7 +7,7 @@
 #   1. Upload the payload folder (release/hetfilm_data_payload/) to OneDrive UNSW.
 #   2. For each file, right-click → 'Copy link' → 'Anyone with the link'.
 #      Append '?download=1' to force direct download:
-#        https://unswedu-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/E<hash>?download=1
+#        https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/E<hash>?download=1
 #   3. Paste the URL into the second column, replacing <ONEDRIVE_URL_HERE>.
 #   4. sha256 + size_bytes are pre-populated from the staged files — do NOT edit
 #      unless you regenerate the payload.
@@ -15,36 +15,36 @@
 # Lines starting with '#' or blank lines are ignored by download_data.sh.
 
 # --- US panel ---
-us/graph.pkl                                   <ONEDRIVE_URL_HERE>  00c1cb826a09fbbc9fc5d41ae35735fae964b08ab39dc414383f5382dc6bcf6d  261368832
-us/prospectus_embeddings.h5                    <ONEDRIVE_URL_HERE>  63cccf89cae68e045f886a574718cb8af78516467d78aaa46cc55d9bc9398003  4216847852
-us/se_htgnn_llm_features.pt                    <ONEDRIVE_URL_HERE>  bee1f719501477139ba55f1559d466152b5efb7f1ce09228cbec5732730a1e46  51132
-us/tape_e.h5                                   <ONEDRIVE_URL_HERE>  a1fbc54d552a649445f7888b2a2e60e3c1e9b602044694862afbfe32e9725d45  81762990
-us/tape_p.h5                                   <ONEDRIVE_URL_HERE>  a714abbeec35ef1182b2acef6c0f82d2c36a1a22b9291ce73d1e221e9f2e75fd  69512307
-us/tape_ta.h5                                  <ONEDRIVE_URL_HERE>  b296aadfd2dcc0fedb98e54e7acecf5ddc53efacc8b1893d6abd04b5a126d158  89227321
+us/graph.pkl                                   https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQAGCS3wKr7-SZOoKJpgGAZlAXBaheGWabIOOzoZrH78sz4?download=1  00c1cb826a09fbbc9fc5d41ae35735fae964b08ab39dc414383f5382dc6bcf6d  261368832
+us/prospectus_embeddings.h5                    https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQAnfcJZNjrVTLoZa4Fwm5lVAWYxmQ-ceAQK5-ErFQ0w6pI?download=1  63cccf89cae68e045f886a574718cb8af78516467d78aaa46cc55d9bc9398003  4216847852
+us/se_htgnn_llm_features.pt                    https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQBBAgLBO63aS4siVxiyJE26Ad29wHSAOe339W30yDyHrBo?download=1  bee1f719501477139ba55f1559d466152b5efb7f1ce09228cbec5732730a1e46  51132
+us/tape_e.h5                                   https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQBdWSQHhKhaSYuldqJHgNaCASm8rxw06senTNb09ZLS-yY?download=1  a1fbc54d552a649445f7888b2a2e60e3c1e9b602044694862afbfe32e9725d45  81762990
+us/tape_p.h5                                   https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQDTC33KniWJQryT0QcYtLxiAennkh5_MuFwf1xQ08SDNmI?download=1  a714abbeec35ef1182b2acef6c0f82d2c36a1a22b9291ce73d1e221e9f2e75fd  69512307
+us/tape_ta.h5                                  https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQB3NowzFOfRQaEXMcPlAHcCAYVXHIMjxEurdaTv8WvDzUE?download=1  b296aadfd2dcc0fedb98e54e7acecf5ddc53efacc8b1893d6abd04b5a126d158  89227321
 
 # --- Canada panel ---
-canada/graph.pkl                               <ONEDRIVE_URL_HERE>  f72971a162db07a2d84d1e35b7298b2188441bd082070512817c739a82529860  276155508
-canada/prospectus_embeddings.h5                <ONEDRIVE_URL_HERE>  130086cf4e7ff93c5f466f69ca069f9c71236cf479e92dbc370cc81ba67acb9c  29155410
-canada/tape_e.h5                               <ONEDRIVE_URL_HERE>  ea2813cb7ec220e30a72a33fd525c4736a52613bfa3de913cc108cfb4e63333e  30791620
-canada/tape_p.h5                               <ONEDRIVE_URL_HERE>  e02783b3f8d9cc86d62f11fd19f02e5020275546620c6ab3fa00e1a88e158f40  28697440
-canada/tape_ta.h5                              <ONEDRIVE_URL_HERE>  4a27991ca86086cf8660e9740751d42c4e97d578601b9b947ec57c8f31729891  30406091
+canada/graph.pkl                               https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQAukiJdWHZrR4JAYdEgqGzYAVB-KseNM_v3lEiTeZWLE3Y?download=1  f72971a162db07a2d84d1e35b7298b2188441bd082070512817c739a82529860  276155508
+canada/prospectus_embeddings.h5                https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQCkUDb1CyTHRpIUWh7zw4iOAemSvVym1WowjumfdRuG6a8?download=1  130086cf4e7ff93c5f466f69ca069f9c71236cf479e92dbc370cc81ba67acb9c  29155410
+canada/tape_e.h5                               https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQCzW6lIGbjmRrkjFQxBMYxwARKk79VqxnAc3lZRxF23fis?download=1  ea2813cb7ec220e30a72a33fd525c4736a52613bfa3de913cc108cfb4e63333e  30791620
+canada/tape_p.h5                               https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQDXlwAR6cTnQ68sI7cbFqIhAVN7u7HOPhWUkrgw56WWCoY?download=1  e02783b3f8d9cc86d62f11fd19f02e5020275546620c6ab3fa00e1a88e158f40  28697440
+canada/tape_ta.h5                              https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQBzoMw2yxfRTJ79WKYA-yVgAfzrlj9dERedB-wk8a2FfB0?download=1  4a27991ca86086cf8660e9740751d42c4e97d578601b9b947ec57c8f31729891  30406091
 
 # --- Heterformer pretrained checkpoints (~420 MB each) ---
-heterformer/ckpt_book/ckpt_publisher/BERTMF-64-0.0001-best.pt                  <ONEDRIVE_URL_HERE>  cbcf6873bbe0a56f7ee6b2d7dafe8be0493cf7ae4ec1f27baac2f80ac6179d72  438272290
-heterformer/ckpt_book/ckpt_publisher/BERTMF-64-epoch-0.0001-1.pt               <ONEDRIVE_URL_HERE>  3914a70de25bf8530f7cb8608a3dae9d60113de67108556832494ee670daa793  438272972
-heterformer/ckpt_book/ckpt_publisher/BERTMF-64-epoch-0.0001-2.pt               <ONEDRIVE_URL_HERE>  99f54eda1c48bafe1e9d28622729ac1bea0eb801e21adcb7ec1befc08b02314e  438272972
-heterformer/ckpt_book/ckpt_publisher/BERTMF-64-epoch-0.0001-3.pt               <ONEDRIVE_URL_HERE>  b5c97b9a4138f692b5327479d5458a6430d15cd71c884a8a7dbed364bbc90107  438272972
-heterformer/ckpt_book/ckpt_publisher/BERTMF-64-epoch-0.0001-4.pt               <ONEDRIVE_URL_HERE>  0fd74228927dc97580b70f8bd737f40756149a1b7fd73056a986178b88057f77  438272972
-heterformer/ckpt_book/ckpt_publisher/BERTMF-64-epoch-0.0001-5.pt               <ONEDRIVE_URL_HERE>  b44afbdf6136adc7126522d0e48a18c3e4069aba3e9cc9d737a17bd4b5165157  438272972
-heterformer/ckpt_book/ckpt_publisher/BERTMF-64-epoch-0.0001-6.pt               <ONEDRIVE_URL_HERE>  209b55b592ca72e37a6cc58c5970f61cd7d47cf7eee43727b72d53464da6811a  438272972
-heterformer/ckpt_book/ckpt_shelves/BERTMF-64-0.0001-best.pt                    <ONEDRIVE_URL_HERE>  d278ec2ea2ab1739f85da8e2e6b40a8735c3132e3fe7dc79204a3e385054e1dd  440117538
-heterformer/ckpt_book/ckpt_shelves/BERTMF-64-epoch-0.0001-10.pt                <ONEDRIVE_URL_HERE>  87d5cba713f226f03c81f850b520836806df658297ce92f4d535f564ef09119f  440118426
-heterformer/ckpt_book/ckpt_shelves/BERTMF-64-epoch-0.0001-1.pt                 <ONEDRIVE_URL_HERE>  29493817f13c9404050fe7cdd6f907094acaa3046c92735747de7d98b955a62a  440118220
-heterformer/ckpt_book/ckpt_shelves/BERTMF-64-epoch-0.0001-2.pt                 <ONEDRIVE_URL_HERE>  cf7c7ca608c1c03cf732d4296cba92d9daeaf60321ec5bc7cf51e834523fe341  440118220
-heterformer/ckpt_book/ckpt_shelves/BERTMF-64-epoch-0.0001-3.pt                 <ONEDRIVE_URL_HERE>  e476f2bb8d8dfa31bfcc9443c7f085b7819618d0b0c31769f96eff424a67e20e  440118220
-heterformer/ckpt_book/ckpt_shelves/BERTMF-64-epoch-0.0001-4.pt                 <ONEDRIVE_URL_HERE>  114b49769a8b662cb4826634caa662f311d79450f0fef7a68b86c448272081e5  440118220
-heterformer/ckpt_book/ckpt_shelves/BERTMF-64-epoch-0.0001-5.pt                 <ONEDRIVE_URL_HERE>  ebc649c7e300f0a52b9dc7d6316137645ec9840bf03bc3e0e15e8ccf99fdc164  440118220
-heterformer/ckpt_book/ckpt_shelves/BERTMF-64-epoch-0.0001-6.pt                 <ONEDRIVE_URL_HERE>  eda3c51f94de1d9ce928a7d6d9845915777f9d87b3f762ca7b009dc7cd275fba  440118220
-heterformer/ckpt_book/ckpt_shelves/BERTMF-64-epoch-0.0001-7.pt                 <ONEDRIVE_URL_HERE>  63ff8fc9e557d190fa33e5f68e14a0f27ba48b29e58d970c70cc33a01f26932a  440118220
-heterformer/ckpt_book/ckpt_shelves/BERTMF-64-epoch-0.0001-8.pt                 <ONEDRIVE_URL_HERE>  ff34c4d476456cea4c57f7096bc4155ab0f93c75f199c4d38f2c2b9d55738f2e  440118220
-heterformer/ckpt_book/ckpt_shelves/BERTMF-64-epoch-0.0001-9.pt                 <ONEDRIVE_URL_HERE>  e29245a5f617c3a14269ac52248a9a7de9ae694aa4f73690c8dd708e9bea4148  440118220
+heterformer/ckpt_book/ckpt_publisher/BERTMF-64-0.0001-best.pt                  https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQCJ4lBPbR1UQL0UoUayzOy5AfZjst_tilwqaEH3td9Isug?download=1  cbcf6873bbe0a56f7ee6b2d7dafe8be0493cf7ae4ec1f27baac2f80ac6179d72  438272290
+heterformer/ckpt_book/ckpt_publisher/BERTMF-64-epoch-0.0001-1.pt               https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQCY-chmYw4PSqh3RHlW4hdIAUx3f4fekv_3Y-XAdQU03QY?download=1  3914a70de25bf8530f7cb8608a3dae9d60113de67108556832494ee670daa793  438272972
+heterformer/ckpt_book/ckpt_publisher/BERTMF-64-epoch-0.0001-2.pt               https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQC3YNn6kawqQLtyotoUo_tIAbxFf6mmsykuJ1AJ1j51zbY?download=1  99f54eda1c48bafe1e9d28622729ac1bea0eb801e21adcb7ec1befc08b02314e  438272972
+heterformer/ckpt_book/ckpt_publisher/BERTMF-64-epoch-0.0001-3.pt               https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQCw0Ii_OIIFQY5Lc2mUcxKaAWmI6HT52lectISJWrCuBZ0?download=1  b5c97b9a4138f692b5327479d5458a6430d15cd71c884a8a7dbed364bbc90107  438272972
+heterformer/ckpt_book/ckpt_publisher/BERTMF-64-epoch-0.0001-4.pt               https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQBRgbI2hcToQ6omFjvaRWS8Ad9gIoWAciMSIXPQEY0LVjY?download=1  0fd74228927dc97580b70f8bd737f40756149a1b7fd73056a986178b88057f77  438272972
+heterformer/ckpt_book/ckpt_publisher/BERTMF-64-epoch-0.0001-5.pt               https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQCpDo9SWk5TRbH-KDIU-oJ2Adry0OdP2s6m7X-kWoWGMSs?download=1  b44afbdf6136adc7126522d0e48a18c3e4069aba3e9cc9d737a17bd4b5165157  438272972
+heterformer/ckpt_book/ckpt_publisher/BERTMF-64-epoch-0.0001-6.pt               https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQA3JlIQai5FQLv_6R2-MdWTAYHYoBATDwMEfrWYI8uAdf8?download=1  209b55b592ca72e37a6cc58c5970f61cd7d47cf7eee43727b72d53464da6811a  438272972
+heterformer/ckpt_book/ckpt_shelves/BERTMF-64-0.0001-best.pt                    https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQDvswywNrqzSJgoc_zGtIo9AfmfEbjAOLxGX-XNTIa8_uE?download=1  d278ec2ea2ab1739f85da8e2e6b40a8735c3132e3fe7dc79204a3e385054e1dd  440117538
+heterformer/ckpt_book/ckpt_shelves/BERTMF-64-epoch-0.0001-10.pt                https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQCZfXkviMQQSoTlS3_YCZwkAexlJYiJMO8DYyS3FTJu7Ww?download=1  87d5cba713f226f03c81f850b520836806df658297ce92f4d535f564ef09119f  440118426
+heterformer/ckpt_book/ckpt_shelves/BERTMF-64-epoch-0.0001-1.pt                 https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQAu5hGwYNARSp5jPibjV-3cAaZtsu0Vwql2npBeB3i5EKk?download=1  29493817f13c9404050fe7cdd6f907094acaa3046c92735747de7d98b955a62a  440118220
+heterformer/ckpt_book/ckpt_shelves/BERTMF-64-epoch-0.0001-2.pt                 https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQCZObOAdLA6RZwlqDN5cu-hAe260rltkB3DXHgSizvTcao?download=1  cf7c7ca608c1c03cf732d4296cba92d9daeaf60321ec5bc7cf51e834523fe341  440118220
+heterformer/ckpt_book/ckpt_shelves/BERTMF-64-epoch-0.0001-3.pt                 https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQBMDY1e8iOqRKSqJbzk_oWZAWjsc3_KhFKiIADqzxOFNh0?download=1  e476f2bb8d8dfa31bfcc9443c7f085b7819618d0b0c31769f96eff424a67e20e  440118220
+heterformer/ckpt_book/ckpt_shelves/BERTMF-64-epoch-0.0001-4.pt                 https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQDA1i75fMmxTKMhdjlVgt5MAX9nKTS6C3A6hHcqpX_Q_6w?download=1  114b49769a8b662cb4826634caa662f311d79450f0fef7a68b86c448272081e5  440118220
+heterformer/ckpt_book/ckpt_shelves/BERTMF-64-epoch-0.0001-5.pt                 https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQBzsIdTWNIERJty1X3h54hnAQS0ya73dXZtDVhrfHX2kU4?download=1  ebc649c7e300f0a52b9dc7d6316137645ec9840bf03bc3e0e15e8ccf99fdc164  440118220
+heterformer/ckpt_book/ckpt_shelves/BERTMF-64-epoch-0.0001-6.pt                 https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQBY2-SoTpPkSqvKJeZ69w9yAXbyw3pJKplrCbfkPGMSl1E?download=1  eda3c51f94de1d9ce928a7d6d9845915777f9d87b3f762ca7b009dc7cd275fba  440118220
+heterformer/ckpt_book/ckpt_shelves/BERTMF-64-epoch-0.0001-7.pt                 https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQDijLSDHn_mR4lG6RgH1y35AXLfCfcQD8mNw_aB_cDlOF4?download=1  63ff8fc9e557d190fa33e5f68e14a0f27ba48b29e58d970c70cc33a01f26932a  440118220
+heterformer/ckpt_book/ckpt_shelves/BERTMF-64-epoch-0.0001-8.pt                 https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQDzf65Ei7OsRrIoofF_1iqFARAqW3zwd6Bv2iKSzn4jxM4?download=1  ff34c4d476456cea4c57f7096bc4155ab0f93c75f199c4d38f2c2b9d55738f2e  440118220
+heterformer/ckpt_book/ckpt_shelves/BERTMF-64-epoch-0.0001-9.pt                 https://unsw-my.sharepoint.com/:u:/g/personal/z5143884_ad_unsw_edu_au/IQCOcVeQRiMaQ7VNZHWg9lDlASiYnLUxK4J21jqYFxrMB2c?download=1  e29245a5f617c3a14269ac52248a9a7de9ae694aa4f73690c8dd708e9bea4148  440118220

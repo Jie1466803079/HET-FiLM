@@ -9,7 +9,7 @@ make a public code host inappropriate.
 **Access:** the OneDrive share URLs are listed in
 `scripts/data_manifest.txt`. Download either through the OneDrive web
 UI (click each URL, click Download) or programmatically via
-`scripts/download_data.sh` after editing the manifest.
+`scripts/download_data.sh`.
 
 ## File manifest
 
