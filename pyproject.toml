@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hetfilm"
+version = "1.0.0"
+description = "HET-FiLM: Edge-Trajectory-Conditioned Modulation for Initiation-Weight Prediction on Dynamic Heterogeneous Mutual Fund Graphs"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Jie Liu" }]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["core*"]

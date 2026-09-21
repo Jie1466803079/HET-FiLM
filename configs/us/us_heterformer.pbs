@@ -1,0 +1,57 @@
+#!/bin/bash
+#PBS -N hf_stage2
+#PBS -q dbgcsegpu2
+#PBS -l select=1:ncpus=8:ngpus=1:mem=64gb:gpu_v100=True
+#PBS -l walltime=06:00:00
+#PBS -j oe
+#PBS -o logs_pbs_output/
+# === Heterformer F1-narrow: Stage-2 edge weight regression (MAE + RMSE + R²) ===
+# Runs scripts/heterformer/evaluate_stage2.py:
+#   - loads frozen Stage-1 Heterformer encoder
+#   - encodes unique fund + stock endpoints once each
+#   - trains a small MLP regression head on q40 positive edges + their weights
+#   - evaluates on val (q43..q48) + test (q51..q64) NEW_EDGE_STRICT entry edges
+# Output: <ckpt_dir>/eval_stage2/{overall_metrics.json, per_quarter_metrics.json,
+#                                 stage2_head.pt}
+
+set -eo pipefail
+
+HOSTNAME_CHECK=$(hostname)
+if echo "$HOSTNAME_CHECK" | grep -q "^k207"; then
+  echo "[GUARD] Landed on k207. Exiting cleanly."
+  exit 0
+fi
+
+cd "${REPO_ROOT:-$PBS_O_WORKDIR}"
+export PYTHONPATH=${REPO_ROOT:-$PBS_O_WORKDIR}:${PYTHONPATH:-}
+export HF_HOME=${DATA_ROOT}/hf_cache
+export TOKENIZERS_PARALLELISM=false
+
+ROOT=${REPO_ROOT:-$PBS_O_WORKDIR}
+PY=$ROOT/../envs/pyg21cu118/bin/python
+LOG_DIR=$ROOT/mutual_fund_prediction/analysis/logs_2005q3_heterformer/eval_stage2
+mkdir -p "$LOG_DIR"
+
+DATA_DIR=$ROOT/sec_filings_project/heterformer_data/f1_narrow_q40train_q43-48val_q51-64test
+CKPT_DIR=$DATA_DIR/ckpt
+LATEST_CKPT=$(ls -t "$CKPT_DIR"/*.pt 2>/dev/null | head -1)
+if [ -z "$LATEST_CKPT" ]; then
+  echo "[GUARD] no .pt checkpoint in $CKPT_DIR — run pbs_heterformer_train.pbs first."
+  exit 2
+fi
+echo "Using checkpoint: $LATEST_CKPT"
+
+echo "=== Stage-2 MAE + RMSE + R² eval ==="
+echo "Host: $(hostname)  Start: $(date)"
+nvidia-smi --query-gpu=name,memory.total --format=csv,noheader || true
+
+$PY -u $ROOT/mutual_fund_prediction/scripts/heterformer/evaluate_stage2.py \
+  --ckpt_path "$LATEST_CKPT" \
+  --device cuda \
+  > "$LOG_DIR/stage2.log" 2>&1
+
+echo "=== stage2 DONE $(date) ==="
+tail -50 "$LOG_DIR/stage2.log"
+echo ""
+echo "--- overall_metrics.json ---"
+cat "$CKPT_DIR/eval_stage2/overall_metrics.json" 2>&1 || true

@@ -1,0 +1,151 @@
+#!/bin/bash
+#PBS -N r530_tape_cfx_p10
+#PBS -q dbgcsegpu2
+#PBS -l select=1:ncpus=32:ngpus=4:mem=128gb:gpu_v100=True
+#PBS -l walltime=12:00:00
+#PBS -j oe
+#PBS -o logs_pbs_output/
+# === 20260630 TAPE pilot10 rerun (after shape-fix) ===
+# Source: pbs_r530_tape_concat768_deberta_s64_stocknorm_11feat_4gpu_full20_20260616.pbs (failed)
+# Reason: original Jun-19 pilot launched BEFORE run_model_tape.py was patched to
+# rebuild ProspectusTextFusion.abs_proj for the 2304-d concat input. All 20
+# seeds crashed at startup with:
+#   RuntimeError: mat1 and mat2 shapes cannot be multiplied (Nx2304 and 1024x256)
+# The fix landed in run_model_tape.py on Jun 19 09:46 (line 109:
+# `ProspectusTextFusion.INPUT_DIM = target_emb_dim`) and was validated by
+# logs_smoke_tape_shapefix_20260619 (1 seed × 3 epochs, exit 0).
+# This rerun is identical to the source body except:
+#   * SEEDS 42..61 → 42..51 (10-seed pilot)
+#   * LOG_ROOT moved to s42-51 path so the failed seed_42..61 dirs in the old
+#     location stay untouched (forensic record)
+# CLI flags, env vars, and resources match the source exactly.
+
+set -eo pipefail
+
+HOSTNAME_CHECK=$(hostname)
+if echo "$HOSTNAME_CHECK" | grep -q "^k207"; then
+  echo "[GUARD] Landed on k207 (CUDA-incompatible). Exiting cleanly."
+  exit 0
+fi
+
+cd "${REPO_ROOT:-$PBS_O_WORKDIR}"
+export PYTHONPATH=${REPO_ROOT:-$PBS_O_WORKDIR}:${PYTHONPATH:-}
+
+# --- Env block (preserved from source) ---
+export FUNDS_GRAPH_PKL=${DATA_ROOT}/us/graph.pkl
+export INCLUDE_MGMT_COMPANY=1
+export FUNDS_LEARNABLE_FEATS=1
+export TARGET_MODE=value
+export TARGET_VALUE_SCALE=raw
+export SPLIT_SAFE_FEATURE_SCALING=1
+export FEATURE_SCALING_METHOD=auto
+export VAL_HORIZON=7
+export TEST_HORIZON=7
+export EDGE_WEIGHT_MODE=percent
+export SPLIT_GAP=2
+export VAL_QUARTERS=6
+export TEST_QUARTERS=14
+export NEW_EDGE_STRICT=1
+export SAVE_EDGE_PREDICTIONS=1
+
+# --- Forced overrides (same as carryfx source) ---
+export SPLIT_SAFE_STOCK_SCALING=1
+export FUND_PORTFOLIO_FEATURES=0
+export STAGE1_WEIGHTED_BCE=0
+
+# --- Paths ---
+PY=python
+SCRIPT=scripts/run/run_model_tape.py
+
+ROOT=${REPO_ROOT:-$PBS_O_WORKDIR}
+TA_H5=$ROOT/sec_filings_project/embeddings_tape/prospectus_embeddings_tape_ta_768.h5
+P_H5=$ROOT/sec_filings_project/embeddings_tape/prospectus_embeddings_tape_p_768.h5
+E_H5=$ROOT/sec_filings_project/embeddings_tape/prospectus_embeddings_tape_e_768.h5
+
+for f in "$TA_H5" "$P_H5" "$E_H5"; do
+  if [ ! -f "$f" ]; then
+    echo "[GUARD] Required TAPE H5 missing: $f"
+    echo "  Run pbs_tape_extract_emb_ta.pbs, pbs_tape_parse_responses.pbs,"
+    echo "  and pbs_tape_extract_emb_e.pbs first."
+    exit 2
+  fi
+done
+
+TAPE_PATHS="$TA_H5,$P_H5,$E_H5"
+
+LOG_ROOT=logs/${PBS_JOBNAME:-run}
+mkdir -p "$LOG_ROOT"
+
+echo "=== TAPE concat[TA,P,E] = 3 × 768 = 2304-d — pilot10 (seeds 42..51, post shape-fix) ==="
+echo "Start: $(date)"
+echo "Hostname: $(hostname)"
+echo "TAPE_EMB_PATHS=$TAPE_PATHS"
+echo ""
+
+SEEDS=(42 43 44 45 46 47 48 49 50 51)
+ORIG_CVD="${CUDA_VISIBLE_DEVICES:-0,1,2,3}"
+IFS=',' read -ra ALLOC_GPUS <<< "$ORIG_CVD"
+echo "PBS-allocated GPUs: ${ALLOC_GPUS[*]}"
+N_GPUS=${#ALLOC_GPUS[@]}
+TOTAL_FAIL=0
+
+for ((BATCH_START=0; BATCH_START<${#SEEDS[@]}; BATCH_START+=N_GPUS)); do
+  echo "=== Batch starting at seed-index $BATCH_START ($(date)) ==="
+  PIDS=()
+  for ((OFFSET=0; OFFSET<N_GPUS; OFFSET++)); do
+    IDX=$((BATCH_START + OFFSET))
+    if [ $IDX -ge ${#SEEDS[@]} ]; then break; fi
+    SEED=${SEEDS[$IDX]}
+    LOG_DIR=$LOG_ROOT/seed_${SEED}
+    RESULT_FILE=$LOG_DIR/hgt_plus_edge_weight_results.json
+    if [ -f "$RESULT_FILE" ]; then
+      echo "=== Seed=$SEED === SKIP (result exists)"
+      continue
+    fi
+    mkdir -p "$LOG_DIR"
+    GPU=${ALLOC_GPUS[$OFFSET]}
+    echo "=== Seed $SEED launching on physical GPU $GPU (slot $OFFSET) === $(date)"
+    (
+      export CUDA_VISIBLE_DEVICES=$GPU
+      export OMP_NUM_THREADS=8
+      export MKL_NUM_THREADS=8
+      export OPENBLAS_NUM_THREADS=8
+      export NUMEXPR_NUM_THREADS=8
+      # Stagger startups (graph + 3 H5s = heavier disk hit than SimTeG run).
+      sleep $((OFFSET * 30))
+  $PY $SCRIPT \
+    --use_tape_fusion \
+    --tape_emb_paths "$TAPE_PATHS" \
+    --model HGT+ --dataset Funds --task link_weight_multitask_new_twostage \
+    --device cuda --seed $SEED \
+    --time_window 8 --neg_sampling_ratio 1.0 \
+    --hid_dim 64 --n_heads 4 --n_layers 2 \
+    --lr 0.001 --wd 0.0 \
+    --max_epochs 2000 --patience 50 \
+    --use_joint_losses --use_amp 0 \
+    --stage1_monitor auc \
+    --use_prospectus \
+    --prospectus_emb_path "$TA_H5" \
+    --no_modality_dropout \
+    --risk_weight 0.0 \
+    --numerical_dim 11 \
+    --no_phase_scheduler \
+    --staleness_scale 64 \
+    --use_text_only_aux_loss \
+    --text_only_aux_lambda 0.1 \
+    --use_jacobian_ratio_gate \
+    --log_dir "$LOG_DIR" \
+    > "$LOG_DIR/output.log" 2>&1
+      echo "Seed $SEED done: $(date)"
+    ) &
+    PIDS+=($!)
+  done
+  for PID in "${PIDS[@]}"; do
+    if ! wait "$PID"; then
+      TOTAL_FAIL=$((TOTAL_FAIL+1))
+    fi
+  done
+done
+echo "=== All batches done: $TOTAL_FAIL failures ==="
+
+echo "ALL SEEDS 42..51 DONE $(date)"

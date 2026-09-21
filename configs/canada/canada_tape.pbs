@@ -1,0 +1,106 @@
+#!/bin/bash
+#PBS -N canada_tape_p10
+#PBS -q dbgcsegpu100
+#PBS -l select=1:ncpus=4:ngpus=1:mem=24gb
+#PBS -l walltime=72:00:00
+#PBS -j oe
+#PBS -o logs_pbs_output/
+# === 20260731 Canadian FIXED-pkl pilot10 — TAPE concat768 (TA+P+E) Two-Stage ===
+# Direct port of configs/2005q3/casmln_neg/rerun_20260530_stocknorm/full20_4gpu_20260603/pbs_r530_tape_concat768_deberta_s64_stocknorm_11feat_1gpu_pilot10_20260630.pbs
+# Same script (scripts/run/run_model_tape.py), only paths + Canadian split env vars swapped.
+
+set -eo pipefail
+
+HOSTNAME_CHECK=$(hostname)
+if echo "$HOSTNAME_CHECK" | grep -q "^k207"; then
+  echo "[GUARD] Landed on k207. Exiting cleanly."; exit 0
+fi
+
+cd "${REPO_ROOT:-$PBS_O_WORKDIR}"
+export PYTHONPATH=${REPO_ROOT:-$PBS_O_WORKDIR}:${PYTHONPATH:-}
+
+export FUNDS_GRAPH_PKL=${DATA_ROOT}/canada/graph.pkl
+export INCLUDE_MGMT_COMPANY=1
+export FUNDS_LEARNABLE_FEATS=1
+export TARGET_MODE=value
+export TARGET_VALUE_SCALE=raw
+export SPLIT_SAFE_FEATURE_SCALING=1
+export SPLIT_SAFE_STOCK_SCALING=1
+export FEATURE_SCALING_METHOD=auto
+export EDGE_WEIGHT_MODE=percent
+export SPLIT_GAP=2
+export VAL_QUARTERS=4
+export TEST_QUARTERS=8
+export NEW_EDGE_STRICT=1
+export SAVE_EDGE_PREDICTIONS=1
+export STAGE1_WEIGHTED_BCE=0
+export FUND_PORTFOLIO_FEATURES=0
+export HF_HOME=${DATA_ROOT}/hf_cache
+
+ROOT=${REPO_ROOT:-$PBS_O_WORKDIR}
+PY=python
+SCRIPT=scripts/run/run_model_tape.py
+
+TA_H5=$ROOT/sec_filings_project/embeddings_tape_canada/prospectus_embeddings_tape_ta_canada_768.h5
+P_H5=$ROOT/sec_filings_project/embeddings_tape_canada/prospectus_embeddings_tape_p_canada_768.h5
+E_H5=$ROOT/sec_filings_project/embeddings_tape_canada/prospectus_embeddings_tape_e_canada_768.h5
+
+for f in "$TA_H5" "$P_H5" "$E_H5"; do
+  if [ ! -f "$f" ]; then echo "[GUARD] Required TAPE H5 missing: $f"; exit 2; fi
+done
+
+TAPE_PATHS="$TA_H5,$P_H5,$E_H5"
+LOG_ROOT=logs/${PBS_JOBNAME:-run}
+mkdir -p "$LOG_ROOT"
+
+echo "=== Canadian FIXED-pkl pilot10 — TAPE concat768 (TA+P+E, 3×768=2304-d) seeds 42..51 ==="
+echo "TAPE_EMB_PATHS=$TAPE_PATHS"
+echo "Start: $(date)  Hostname: $(hostname)"
+
+SEEDS=(42 43 44 45 46 47 48 49 50 51)
+TOTAL_FAIL=0
+for SEED in "${SEEDS[@]}"; do
+  LOG_DIR=$LOG_ROOT/seed_${SEED}
+  RESULT_FILE=$LOG_DIR/hgt_plus_edge_weight_results.json
+  if [ -f "$RESULT_FILE" ]; then
+    echo "=== Seed=$SEED === SKIP (result exists)"
+    continue
+  fi
+  mkdir -p "$LOG_DIR"
+  echo "=== Seed $SEED launching === $(date)"
+  export OMP_NUM_THREADS=8
+  export MKL_NUM_THREADS=8
+  export OPENBLAS_NUM_THREADS=8
+  export NUMEXPR_NUM_THREADS=8
+  if $PY $SCRIPT \
+    --use_tape_fusion \
+    --tape_emb_paths "$TAPE_PATHS" \
+    --model HGT+ --dataset Funds --task link_weight_multitask_new_twostage \
+    --device cuda --seed $SEED \
+    --time_window 8 --neg_sampling_ratio 1.0 \
+    --hid_dim 64 --n_heads 4 --n_layers 2 \
+    --lr 0.001 --wd 0.0 \
+    --max_epochs 2000 --patience 50 \
+    --use_joint_losses --use_amp 0 \
+    --stage1_monitor auc \
+    --use_prospectus \
+    --prospectus_emb_path "$TA_H5" \
+    --no_modality_dropout \
+    --risk_weight 0.0 \
+    --numerical_dim 11 \
+    --no_phase_scheduler \
+    --no_staleness \
+    --use_text_only_aux_loss \
+    --text_only_aux_lambda 0.1 \
+    --use_jacobian_ratio_gate \
+    --log_dir "$LOG_DIR" \
+    > "$LOG_DIR/output.log" 2>&1
+  then
+    echo "Seed $SEED done: $(date)"
+  else
+    TOTAL_FAIL=$((TOTAL_FAIL+1))
+    echo "Seed $SEED FAILED: $(date)"
+  fi
+done
+echo "=== All seeds attempted: $TOTAL_FAIL failures ==="
+echo "ALL SEEDS 42..51 DONE $(date)"

@@ -1,0 +1,52 @@
+Model,Seeds Done,Test AUC,Test AUC std,Test AP,Test AP std,Test MAE,Test MAE std,Test RMSE,Test RMSE std,Test R2,Test R2 std
+"HGT+ baseline (Two-Stage; fixedpkl)",10,0.8954,0.0237,0.8719,0.0319,0.6581,0.1706,2.6438,0.8561,-0.7796,2.0265
+"HGT+ baseline (Two-Stage; fixedpkl) — drop worst-R2 seed (robust)",9,0.8934,0.0242,0.8699,0.0332,0.6574,0.1810,2.4391,0.5942,-0.2203,1.0490
+
+"HGT+ SpatialAttnBias no_staleness+no_modality_dropout+no_phase_scheduler+AMP (text carry; fixedpkl)",10,0.9174,0.0138,0.9011,0.0165,1.0772,1.3869,14.3843,38.3442,-1018.4971,3221.1005
+"HGT+ SpatialAttnBias no_staleness+no_modality_dropout+no_phase_scheduler+AMP (text carry; fixedpkl) — drop worst-R2 seed (robust)",9,0.9163,0.0142,0.8998,0.0170,0.6422,0.1874,2.2591,0.2795,0.1043,0.2711
+
+"HGT+EWlogPlus SpatialAttnBias no_staleness+no_modality_dropout+no_phase_scheduler+AMP (text carry; fixedpkl)",10,0.9250,0.0047,0.9084,0.0039,0.5272,0.0121,2.1635,0.0233,0.1976,0.0198
+"HGT+EWlogPlus SpatialAttnBias no_staleness+no_modality_dropout+no_phase_scheduler+AMP (text carry; fixedpkl) — drop worst-R2 seed (robust)",9,0.9258,0.0040,0.9091,0.0035,0.5240,0.0069,2.1597,0.0211,0.2020,0.0151
+
+CasMLN-NoEW (Two-Stage; fixedpkl),10,0.9348,0.0033,0.9224,0.0038,0.5549,0.0141,2.1685,0.0393,0.1853,0.0348
+CasMLN-NoEW (Two-Stage; fixedpkl) — drop worst-R2 seed (robust; dropped s47),9,0.9354,0.0030,0.9231,0.0034,0.5539,0.0146,2.1603,0.0313,0.1930,0.0263
+
+"CasMLN-NoEW SpatialAttnBias no_staleness+no_modality_dropout+no_phase_scheduler+AMP (text carry; fixedpkl)",10,0.9366,0.0021,0.9228,0.0028,0.5541,0.0081,2.1506,0.0291,0.2004,0.0232
+"CasMLN-NoEW SpatialAttnBias no_staleness+no_modality_dropout+no_phase_scheduler+AMP (text carry; fixedpkl) — drop worst-R2 seed (robust; dropped s46)",9,0.9370,0.0018,0.9234,0.0024,0.5518,0.0044,2.1441,0.0229,0.2054,0.0186
+
+"CasMLN-EWlog SpatialAttnBias no_staleness+no_modality_dropout+no_phase_scheduler+AMP (text carry; fixedpkl)",10,0.9313,0.0014,0.9165,0.0018,0.5522,0.0056,2.1302,0.0267,0.2194,0.0226
+"CasMLN-EWlog SpatialAttnBias no_staleness+no_modality_dropout+no_phase_scheduler+AMP (text carry; fixedpkl) — drop worst-R2 seed (robust; dropped s50)",9,0.9314,0.0015,0.9166,0.0018,0.5512,0.0049,2.1227,0.0152,0.2260,0.0111
+
+HTGNN tuned (Two-Stage; fixedpkl),10,0.9272,0.0034,0.9142,0.0042,0.6223,0.1358,2.2559,0.1339,0.1269,0.1069
+HTGNN tuned (Two-Stage; fixedpkl) — drop worst-R2 seed (robust; dropped s49),9,0.9275,0.0033,0.9147,0.0041,0.6004,0.1240,2.2345,0.1226,0.1439,0.0979
+
+DySAT (Two-Stage; fixedpkl),10,0.7069,0.1762,0.6868,0.1700,0.7475,0.1239,2.3672,0.1275,0.0379,0.1001
+DySAT (Two-Stage; fixedpkl) — drop worst-R2 seed (robust; dropped s46),9,0.7422,0.1448,0.7168,0.1495,0.7389,0.1283,2.3589,0.1323,0.0445,0.1038
+
+SE-HTGNN-NoEW (Two-Stage; fixedpkl),10,0.9325,0.0024,0.9169,0.0029,0.5729,0.0866,2.1782,0.0958,0.1877,0.0760
+SE-HTGNN-NoEW (Two-Stage; fixedpkl) — drop worst-R2 seed (robust; dropped s45),9,0.9332,0.0015,0.9174,0.0024,0.5456,0.0048,2.1482,0.0142,0.2116,0.0105
+
+DHSpace (Two-Stage; fixedpkl),10,0.9429,0.0019,0.9302,0.0024,0.5387,0.0052,2.1708,0.0137,0.1925,0.0112
+DHSpace (Two-Stage; fixedpkl) — drop worst-R2 seed (robust; dropped s45),9,0.9427,0.0019,0.9299,0.0024,0.5375,0.0036,2.1683,0.0119,0.1947,0.0094
+
+"SimTeG strip-down (no TOA, no JacGate, no staleness) (Two-Stage; fixedpkl)",10,0.9087,0.0208,0.8898,0.0258,0.9274,1.0280,10.6654,26.6597,-628.6283,1988.3172
+"SimTeG strip-down (no TOA, no JacGate, no staleness) (Two-Stage; fixedpkl) — drop worst-R2 seed (robust; dropped s46)",9,0.9077,0.0218,0.8882,0.0268,0.6036,0.0980,2.2351,0.1741,0.1329,0.1569
+
+TAPE concat768 TA+P+E (Two-Stage; fixedpkl),10,0.9135,0.0177,0.8936,0.0202,0.5819,0.0539,2.2041,0.1153,0.1628,0.1009
+TAPE concat768 TA+P+E (Two-Stage; fixedpkl) — drop worst-R2 seed (robust; dropped s48),9,0.9142,0.0186,0.8952,0.0208,0.5717,0.0457,2.1711,0.0518,0.1927,0.0379
+
+RGCN (Two-Stage; fixedpkl),10,0.9370,0.0017,0.9236,0.0019,0.5497,0.0076,2.1468,0.0112,0.2109,0.0091
+RGCN (Two-Stage; fixedpkl) — drop worst-R2 seed (robust; dropped s51),9,0.9368,0.0017,0.9235,0.0020,0.5486,0.0071,2.1438,0.0072,0.2134,0.0052
+
+HAN (Two-Stage; fixedpkl),10,0.8990,0.0215,0.8698,0.0260,0.7016,0.0610,2.2741,0.0563,0.1115,0.0447
+HAN (Two-Stage; fixedpkl) — drop worst-R2 seed (robust; dropped s50),9,0.9012,0.0215,0.8712,0.0270,0.6961,0.0619,2.2611,0.0428,0.1216,0.0348
+
+GCN (Two-Stage; fixedpkl),10,0.9110,0.0016,0.8976,0.0020,0.6480,0.0132,2.2231,0.0201,0.1546,0.0154
+GCN (Two-Stage; fixedpkl) — drop worst-R2 seed (robust; dropped s47),9,0.9108,0.0015,0.8971,0.0013,0.6496,0.0130,2.2205,0.0195,0.1566,0.0150
+
+GAT (Two-Stage; fixedpkl),10,0.9337,0.0035,0.9150,0.0050,0.5904,0.0213,2.1886,0.0259,0.1778,0.0212
+GAT (Two-Stage; fixedpkl) — drop worst-R2 seed (robust; dropped s45),9,0.9333,0.0034,0.9145,0.0051,0.5908,0.0224,2.1853,0.0251,0.1810,0.0200
+
+"Heterformer (BERT-base, single seed; Stage-1 sampled-neg AUC/AP; Stage-2 regression head; fixedpkl)",1,0.5841,0.0000,0.5607,0.0000,1.0432,0.0000,2.2153,0.0000,-0.0773,0.0000
+HGT+EWlogPlus SpatialAttnBias v2ra concat text no_staleness+no_modality_dropout+no_phase_scheduler+AMP (text carry; fixedpkl),10,0.9249,0.0031,0.9089,0.0036,0.5301,0.0073,2.1797,0.0455,0.1799,0.0381
+HGT+EWlogPlus SpatialAttnBias v2ra concat text no_staleness+no_modality_dropout+no_phase_scheduler+AMP (text carry; fixedpkl) — drop worst-R2 seed (robust; dropped s46),9,0.9255,0.0027,0.9096,0.003,0.5292,0.0071,2.1704,0.0368,0.188,0.0302

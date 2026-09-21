@@ -1,0 +1,46 @@
+# HET-FiLM — thesis reproducibility requirements
+#
+# Pinned to the environment used to produce Tables 5.2, 5.3, 5.4 and Appendix A
+# in the thesis. Python 3.9+ recommended; CUDA 11.8 required for the GPU wheels
+# below. If your platform differs, adjust the wheel index for torch and PyG.
+#
+# Install order matters — install torch first, then the PyG sparse/scatter/cluster
+# stack against the same torch/CUDA build, then the rest.
+#
+# Step 1: PyTorch 2.1.2 + CUDA 11.8
+#   pip install torch==2.1.2 --index-url https://download.pytorch.org/whl/cu118
+# Step 2: PyG sparse/scatter/cluster wheels for that torch build
+#   pip install torch-scatter torch-sparse torch-cluster \
+#     -f https://data.pyg.org/whl/torch-2.1.0+cu118.html
+# Step 3: everything below
+torch==2.1.2
+torch-geometric==2.4.0
+dgl==1.1.2
+
+numpy==1.26.3
+pandas==2.2.3
+scikit-learn==1.6.1
+scipy==1.13.1
+h5py==3.14.0
+pyarrow
+
+# Text-attributed baselines (TAPE, Heterformer, SimTeG)
+transformers==4.35.2
+peft==0.6.2
+tokenizers>=0.14
+accelerate>=0.24
+
+# Data-building — 485BPOS + SEDAR text pipelines
+pypdf
+pymupdf
+tenacity
+requests
+openai>=1.0
+
+# Analysis + significance tests
+statsmodels
+tqdm==4.67.1
+
+# XGBoost baseline (not in paper but needed by core.models.load_model.py at
+# import time via the top-level `from .XGBoost import ...` line)
+xgboost

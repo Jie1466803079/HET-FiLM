@@ -1,0 +1,92 @@
+#!/bin/bash
+#PBS -N r530_htgnn_tune_cnc
+#PBS -q dbgcsegpu12
+#PBS -l select=1:ncpus=8:ngpus=1:mem=32gb
+#PBS -l walltime=96:00:00
+#PBS -j oe
+#PBS -o logs_pbs_output/
+# === 20260815 concat-text ablation on Row 50 (HTGNN tuned, Two-Stage) ===
+# Derived from: configs/2005q3/casmln_neg/rerun_20260530_stocknorm/
+#               pbs_r530_htgnn_tuned_b4p2_stocknorm_11feat_s42-61_20260530.pbs
+# Delta vs source:
+#   + concat text flags (same as sibling PBS r530_*_v2raconcat_ns_*).
+#   - Seeds 42..61 -> 42..51 (10-seed pilot for concat ablation).
+
+set -eo pipefail
+
+
+HOSTNAME_CHECK=$(hostname)
+if echo "$HOSTNAME_CHECK" | grep -q "^k207"; then
+  echo "[GUARD] Landed on k207 (CUDA-incompatible). Exiting cleanly."
+  exit 0
+fi
+
+
+cd "${REPO_ROOT:-$PBS_O_WORKDIR}"
+export PYTHONPATH=${REPO_ROOT:-$PBS_O_WORKDIR}:${PYTHONPATH:-}
+
+
+# --- Env block (preserved from source) ---
+export FUNDS_GRAPH_PKL=${DATA_ROOT}/us/graph.pkl
+export INCLUDE_MGMT_COMPANY=1
+export FUNDS_LEARNABLE_FEATS=1
+export TARGET_MODE=value
+export TARGET_VALUE_SCALE=raw
+export SPLIT_SAFE_FEATURE_SCALING=1
+export FEATURE_SCALING_METHOD=auto
+export VAL_HORIZON=7
+export TEST_HORIZON=7
+export EDGE_WEIGHT_MODE=percent
+export SPLIT_GAP=2
+export VAL_QUARTERS=6
+export TEST_QUARTERS=14
+export NEW_EDGE_STRICT=1
+export SAVE_EDGE_PREDICTIONS=1
+
+# --- Forced overrides for the 20260530 stocknorm + 11feat rerun ---
+export SPLIT_SAFE_STOCK_SCALING=1
+export FUND_PORTFOLIO_FEATURES=0
+export STAGE1_WEIGHTED_BCE=0
+
+PY=python
+SCRIPT=scripts/run/run_model_casmln_neg.py
+H5=${DATA_ROOT}/us/prospectus_embeddings.h5
+
+LOG_ROOT=logs/${PBS_JOBNAME:-run}
+mkdir -p "$LOG_ROOT"
+
+echo "=== HTGNN tuned + v2ra concat text — stocknorm+11feat seeds 42..51 ==="
+echo "Start: $(date)"
+echo "Hostname: $(hostname)"
+echo ""
+for SEED in 42 43 44 45 46 47 48 49 50 51; do
+  LOG_DIR=$LOG_ROOT/seed_${SEED}
+  RESULT_FILE=$LOG_DIR/hgt_plus_edge_weight_results.json
+  if [ -f "$RESULT_FILE" ]; then
+    echo "=== Seed=$SEED === SKIP (result exists)"
+    continue
+  fi
+  mkdir -p "$LOG_DIR"
+  echo "=== Seed $SEED === $(date)"
+  $PY $SCRIPT \
+    --model HTGNN --dataset Funds --task link_weight_multitask_new_twostage \
+    --device cuda --seed $SEED \
+    --time_window 8 --neg_sampling_ratio 1.0 \
+    --hid_dim 64 --n_heads 4 --n_layers 2 \
+    --lr 0.001 --wd 0.001 --grad_clip 1.0 --dropout 0.2 \
+    --max_epochs 2000 --patience 50 \
+    --use_joint_losses \
+    --stage1_monitor auc \
+    --use_prospectus \
+    --prospectus_emb_path "$H5" \
+    --prospectus_fusion_mode concat \
+    --risk_weight 0.0 \
+    --no_staleness \
+    --no_modality_dropout \
+    --numerical_dim 11 \
+    --log_dir "$LOG_DIR" \
+    > "$LOG_DIR/output.log" 2>&1
+  echo "Seed $SEED done: $(date)"
+done
+
+echo "ALL SEEDS 42..51 DONE $(date)"

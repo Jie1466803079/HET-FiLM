@@ -1,0 +1,123 @@
+#!/bin/bash
+#PBS -N r530_etraj_notcetf10
+#PBS -q dbgcsegpu2
+#PBS -l select=1:ncpus=32:ngpus=4:mem=128gb:gpu_v100=True
+#PBS -l walltime=12:00:00
+#PBS -j oe
+#PBS -o logs_pbs_output/
+# === 20260825 ablation — remove --use_tcetf on top of r530_etraj_tcetf_noaux ===
+# Derived from: pbs_r530_hgtp_etraj_tcetf_noauxall_full20_20260617.pbs (job 8315821)
+# Diff vs source:
+#   - --use_tcetf              (REMOVED — no Δγ_text/Δβ_text branch in
+#                                EdgeTrajectoryFiLM; γ_base/β_base only)
+#   - --tcetf_text_dim 128     (REMOVED — dead flag without --use_tcetf)
+#   Effect: EdgeTrajectoryFiLM is instantiated with use_tcetf=False, so
+#   forward() skips the text-conditioning branch (edge_trajectory.py:280-284).
+#   Text still injects into graph['fund'].x via ProspectusTextFusion — this
+#   isolates the TCETF text->edge-FiLM contribution vs row 7.
+#   Seeds reduced to 42..51 (10-seed pilot). New LOG_ROOT to avoid clobber.
+
+set -eo pipefail
+
+HOSTNAME_CHECK=$(hostname)
+if echo "$HOSTNAME_CHECK" | grep -q "^k207"; then
+  echo "[GUARD] Landed on k207 (CUDA-incompatible). Exiting cleanly."
+  exit 0
+fi
+
+cd "${REPO_ROOT:-$PBS_O_WORKDIR}"
+export PYTHONPATH=${REPO_ROOT:-$PBS_O_WORKDIR}:${PYTHONPATH:-}
+
+# --- Env block (identical to source) ---
+export FUNDS_GRAPH_PKL=${DATA_ROOT}/us/graph.pkl
+export INCLUDE_MGMT_COMPANY=1
+export FUNDS_LEARNABLE_FEATS=1
+export TARGET_MODE=value
+export TARGET_VALUE_SCALE=raw
+export SPLIT_SAFE_FEATURE_SCALING=1
+export FEATURE_SCALING_METHOD=auto
+export VAL_HORIZON=7
+export TEST_HORIZON=7
+export EDGE_WEIGHT_MODE=percent
+export SPLIT_GAP=2
+export VAL_QUARTERS=6
+export TEST_QUARTERS=14
+export NEW_EDGE_STRICT=1
+export SAVE_EDGE_PREDICTIONS=1
+export SPLIT_SAFE_STOCK_SCALING=1
+export FUND_PORTFOLIO_FEATURES=0
+export STAGE1_WEIGHTED_BCE=0
+
+PY=python
+SCRIPT=scripts/run/run_model_casmln_neg.py
+H5=${DATA_ROOT}/us/prospectus_embeddings.h5
+
+LOG_ROOT=logs/${PBS_JOBNAME:-run}
+mkdir -p "$LOG_ROOT"
+
+echo "=== etraj noauxall (no TCETF) — stocknorm+11feat seeds 42..51 (pilot 10) ==="
+echo "Start: $(date)"
+echo "Hostname: $(hostname)"
+echo ""
+SEEDS=(42 43 44 45 46 47 48 49 50 51)
+ORIG_CVD="${CUDA_VISIBLE_DEVICES:-0,1,2,3}"
+IFS=',' read -ra ALLOC_GPUS <<< "$ORIG_CVD"
+echo "PBS-allocated GPUs: ${ALLOC_GPUS[*]}"
+N_GPUS=${#ALLOC_GPUS[@]}
+TOTAL_FAIL=0
+for ((BATCH_START=0; BATCH_START<${#SEEDS[@]}; BATCH_START+=N_GPUS)); do
+  echo "=== Batch starting at seed-index $BATCH_START ($(date)) ==="
+  PIDS=()
+  for ((OFFSET=0; OFFSET<N_GPUS; OFFSET++)); do
+    IDX=$((BATCH_START + OFFSET))
+    if [ $IDX -ge ${#SEEDS[@]} ]; then break; fi
+    SEED=${SEEDS[$IDX]}
+    LOG_DIR=$LOG_ROOT/seed_${SEED}
+    RESULT_FILE=$LOG_DIR/hgt_plus_edge_weight_results.json
+    if [ -f "$RESULT_FILE" ]; then
+      echo "=== Seed=$SEED === SKIP (result exists)"
+      continue
+    fi
+    mkdir -p "$LOG_DIR"
+    GPU=${ALLOC_GPUS[$OFFSET]}
+    echo "=== Seed $SEED launching on physical GPU $GPU (slot $OFFSET) === $(date)"
+    (
+      export CUDA_VISIBLE_DEVICES=$GPU
+      export OMP_NUM_THREADS=8
+      export MKL_NUM_THREADS=8
+      export OPENBLAS_NUM_THREADS=8
+      export NUMEXPR_NUM_THREADS=8
+      sleep $((OFFSET * 30))
+      $PY $SCRIPT \
+        --model HGT+ --dataset Funds --task link_weight_multitask_new_twostage \
+        --device cuda --seed $SEED \
+        --time_window 8 --neg_sampling_ratio 1.0 \
+        --hid_dim 64 --n_heads 4 --n_layers 2 \
+        --lr 0.001 --wd 0.0 \
+        --max_epochs 2000 --patience 50 \
+        --use_joint_losses --use_amp 0 \
+        --stage1_monitor auc \
+        --use_prospectus \
+        --prospectus_emb_path "$H5" \
+        --no_modality_dropout \
+        --risk_weight 0.0 \
+        --numerical_dim 11 \
+        --no_phase_scheduler \
+        --no_staleness \
+        --use_edge_trajectory \
+        --edge_trajectory_dim 32 \
+        --log_dir "$LOG_DIR" \
+        > "$LOG_DIR/output.log" 2>&1
+      echo "Seed $SEED done: $(date)"
+    ) &
+    PIDS+=($!)
+  done
+  for PID in "${PIDS[@]}"; do
+    if ! wait "$PID"; then
+      TOTAL_FAIL=$((TOTAL_FAIL+1))
+    fi
+  done
+done
+echo "=== All batches done: $TOTAL_FAIL failures ==="
+
+echo "ALL SEEDS 42..51 DONE $(date)"

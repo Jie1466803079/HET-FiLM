@@ -1,0 +1,50 @@
+#!/bin/bash
+#PBS -N canada_hf_stage2
+#PBS -q dbgcsegpu100
+#PBS -l select=1:ncpus=8:ngpus=1:mem=48gb
+#PBS -l walltime=08:00:00
+#PBS -j oe
+#PBS -o logs_pbs_output/
+# === 20260731 Canadian Heterformer — Stage-2 edge weight regression ===
+# Direct port of configs/2005q3/casmln_neg/pbs_heterformer_stage2.pbs.
+# Same script (scripts/heterformer/evaluate_stage2_canada.py); only ckpt path swapped.
+
+set -eo pipefail
+
+HOSTNAME_CHECK=$(hostname)
+if echo "$HOSTNAME_CHECK" | grep -q "^k207"; then
+  echo "[GUARD] Landed on k207. Exiting cleanly."; exit 0
+fi
+
+cd "${REPO_ROOT:-$PBS_O_WORKDIR}"
+export PYTHONPATH=${REPO_ROOT:-$PBS_O_WORKDIR}:${PYTHONPATH:-}
+export HF_HOME=${DATA_ROOT}/hf_cache
+export TOKENIZERS_PARALLELISM=false
+
+ROOT=${REPO_ROOT:-$PBS_O_WORKDIR}
+PY=python
+LOG_DIR=$ROOT/mutual_fund_prediction/analysis/logs_canada_heterformer/eval_stage2
+mkdir -p "$LOG_DIR"
+
+DATA_DIR=$ROOT/sec_filings_project/heterformer_canada_data/f1_narrow_q27train_q30-33val_q36-43test
+CKPT_DIR=$DATA_DIR/ckpt
+LATEST_CKPT=$(ls -t "$CKPT_DIR"/*.pt 2>/dev/null | head -1)
+if [ -z "$LATEST_CKPT" ]; then
+  echo "[GUARD] no .pt checkpoint in $CKPT_DIR — run pbs_canada_heterformer_train first."
+  exit 2
+fi
+echo "Using checkpoint: $LATEST_CKPT"
+
+echo "=== Canadian Heterformer Stage-2 MAE + RMSE + R² eval ==="
+echo "Host: $(hostname)  Start: $(date)"
+
+$PY -u $ROOT/mutual_fund_prediction/scripts/heterformer/evaluate_stage2_canada.py \
+  --ckpt_path "$LATEST_CKPT" --data_dir "$DATA_DIR" \
+  --device cuda \
+  > "$LOG_DIR/stage2.log" 2>&1
+
+echo "=== stage2 DONE $(date) ==="
+tail -50 "$LOG_DIR/stage2.log"
+echo ""
+echo "--- overall_metrics.json ---"
+cat "$CKPT_DIR/eval_stage2/overall_metrics.json" 2>&1 || true
