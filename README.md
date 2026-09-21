@@ -47,7 +47,7 @@ hetfilm/
 ├── core/                    # Python package: models, data loaders, trainer, losses
 │   ├── args_model.py        # CLI flags
 │   ├── data/                # FundsDataset, FundsEdgeWeightDataset (+ CasMLN variant)
-│   ├── models/              # 13 baselines + HET-FiLM (HGT+ + edge_trajectory + prospectus_fusion)
+│   ├── models/              # 13 baselines + HET-FiLM (start at hetfilm.py)
 │   ├── trainer/edge_multitask.py    # two-stage trainer
 │   └── evaluation_metrics.py
 ├── scripts/
@@ -87,6 +87,26 @@ components extend HGT (Hu et al. 2020) to the initiation-weight task:
 Two-stage training: Stage 1 fits the encoder by BCE link prediction on
 the same new-edge population; Stage 2 freezes the encoder and fits an MLP
 weight head under Huber loss in `log(1+y)` space.
+
+## Where HET-FiLM is implemented
+
+HET-FiLM has no single model class: it is the HGT+ backbone (`--model HGT+`)
+with the two components above switched on by `--use_prospectus` and
+`--use_edge_trajectory`. `core/models/hetfilm.py` imports every piece in one
+place, and the table shows where each one lives.
+
+| Component | Code |
+|---|---|
+| Edge-trajectory encoder (causal GRU over each persistent edge's weight history) | `EdgeTrajectoryEncoder` in `core/models/edge_trajectory.py` |
+| Per-edge FiLM heads producing γ and β (plus the text-conditioned branch enabled by `--use_tcetf`) | `EdgeTrajectoryFiLM` in `core/models/edge_trajectory.py` |
+| FiLM applied to the attention values during message passing | `HGTConv.message` in `core/models/HGT.py` |
+| Prospectus text fusion into fund features | `ProspectusTextFusion` in `core/models/prospectus_fusion.py` |
+| Wiring and two-stage training | `MultiTaskEdgePredictor` in `core/models/multitask_edge.py` (`configure_edge_trajectory`, `_apply_prospectus_fusion`) |
+| Attachment at run time | `scripts/run/run_model.py` |
+
+The exact flags for each panel are in `configs/us/us_hetfilm.pbs` and
+`configs/canada/canada_hetfilm.pbs`; the Canadian configuration also passes
+`--use_tcetf` and `--grad_clip 1.0`.
 
 ## Reproducibility notes
 
